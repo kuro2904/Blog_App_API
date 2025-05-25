@@ -32,7 +32,7 @@ public class JwtService {
                     .expirationTime(Date.from(Instant.now().plusSeconds(3600 * 24 * 30))) // 1 month
                     .claim("roles", user.getAuthorities())
                     .claim("userId", user.getId())
-                    .claim("imageUrl",user.getAvatar().getUrl().isEmpty() ? null : user.getAvatar().getUrl())
+                    .claim("imageUrl",user.getAvatar() == null ? null : user.getAvatar().getUrl())
                     .claim("email",user.getEmail())
                     .build();
 
