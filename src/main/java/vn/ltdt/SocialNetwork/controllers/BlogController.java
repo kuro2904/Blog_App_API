@@ -1,13 +1,16 @@
 package vn.ltdt.SocialNetwork.controllers;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import vn.ltdt.SocialNetwork.dtos.BlogDTO;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
+import vn.ltdt.SocialNetwork.dtos.blog.BlogRequest;
+import vn.ltdt.SocialNetwork.dtos.blog.BlogResponse;
+import vn.ltdt.SocialNetwork.models.User;
 import vn.ltdt.SocialNetwork.services.BlogService;
 
 @RestController
@@ -17,7 +20,8 @@ public class BlogController {
 
     private final BlogService blogService;
 
-    public ResponseEntity<Page<BlogDTO>> getBlogs(
+    @GetMapping
+    public ResponseEntity<Page<BlogResponse>> getBlogs(
             @RequestParam(value = "pageNum", defaultValue = "0") int pageNum,
             @RequestParam(value = "pageSize", defaultValue = "5") int pageSize,
             @RequestParam(value = "sortFiled", required = false) String sortField,
@@ -26,4 +30,11 @@ public class BlogController {
     ) {
         return ResponseEntity.ok(blogService.fetch(pageNum, pageSize, sortField, sortDirection, searchText));
     }
+
+    @PostMapping
+    public ResponseEntity<Void> createBlog(@AuthenticationPrincipal User user, @Valid @RequestBody BlogRequest blogRequest) {
+        blogService.save(user,blogRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
 }
