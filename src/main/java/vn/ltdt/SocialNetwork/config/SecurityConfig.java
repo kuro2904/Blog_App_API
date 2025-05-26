@@ -1,6 +1,7 @@
 package vn.ltdt.SocialNetwork.config;
 
 import com.nimbusds.jose.JWSAlgorithm;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,23 +19,17 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
 
-import org.springframework.core.convert.converter.Converter;
-import org.springframework.security.authentication.AbstractAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import javax.crypto.spec.SecretKeySpec;
 import java.util.List;
-import java.util.Locale;
-import java.util.stream.Collectors;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
 
     @Value("${app.secretKey}")
@@ -44,6 +39,8 @@ public class SecurityConfig {
     private final List<String> ALLOWED_CORS_METHOD = List.of("GET", "POST", "PUT", "DELETE", "OPTIONS");
     private final String[] PUBLIC_GET_ROUTE = {};
     private final String[] PUBLIC_POST_ROUTE = {"/auth/**"};
+    private final CustomJwtAuthenticationConverter customJwtAuthenticationConverter;
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -89,21 +86,8 @@ public class SecurityConfig {
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwt ->
                                 jwt
-                                        .jwtAuthenticationConverter(jwtAuthenticationConverter())
-                                        .decoder(jwtDecoder())))
+                                    .jwtAuthenticationConverter(customJwtAuthenticationConverter)
+                                    .decoder(jwtDecoder())))
                 .build();
-    }
-
-    @Bean
-    public Converter<Jwt, ? extends AbstractAuthenticationToken> jwtAuthenticationConverter() {
-        JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
-        converter.setJwtGrantedAuthoritiesConverter(jwt -> {
-            List<String> roles = jwt.getClaimAsStringList("roles");
-            if (roles == null) return List.of();
-            return roles.stream()
-                    .map(role -> new SimpleGrantedAuthority(ROLE_PREFIX + role.toUpperCase(Locale.ROOT)))
-                    .collect(Collectors.toList());
-        });
-        return converter;
     }
 }
