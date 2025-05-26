@@ -1,5 +1,6 @@
-package vn.ltdt.SocialNetwork.dtos;
+package vn.ltdt.SocialNetwork.dtos.blog;
 
+import vn.ltdt.SocialNetwork.dtos.ReactionDTO;
 import vn.ltdt.SocialNetwork.models.Blog;
 import vn.ltdt.SocialNetwork.models.image.AppImage;
 
@@ -7,7 +8,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-public record BlogDTO(
+public record BlogResponse(
         UUID id,
         String content,
         String author,
@@ -16,13 +17,13 @@ public record BlogDTO(
         List<ReactionDTO> reactions
 ) {
 
-    public BlogDTO(Blog blog) {
+    public BlogResponse(Blog blog) {
        this (
         blog.getId(),
         blog.getContent(),
         blog.getAuthor().getFirstName(),
         blog.getCreatedAt(),
-        blog.getAppImage().stream().map(AppImage::getUrl).toList(),
+        blog.getImages().stream().map(AppImage::getUrl).toList(),
         blog.getReactions().stream().map(ReactionDTO::new).toList()
        );
     }
