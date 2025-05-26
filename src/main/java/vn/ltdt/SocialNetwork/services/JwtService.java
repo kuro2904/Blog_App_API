@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import vn.ltdt.SocialNetwork.dtos.auth.JWTToken;
 import vn.ltdt.SocialNetwork.models.User;
-import vn.ltdt.SocialNetwork.models.image.UserImage;
 
 import java.time.Instant;
 import java.util.Date;
@@ -27,11 +26,11 @@ public class JwtService {
         try{
             log.info("Generating token");
             JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
-                    .subject(user.getFirstName())
+                    .subject(user.getId().toString())
                     .issueTime(new Date())
                     .expirationTime(Date.from(Instant.now().plusSeconds(3600 * 24 * 30))) // 1 month
                     .claim("roles", user.getAuthorities())
-                    .claim("userId", user.getId())
+                    .claim("userFullName", String.format("%s %s",user.getFirstName(), user.getLastName()))
                     .claim("imageUrl",user.getAvatar() == null ? null : user.getAvatar().getUrl())
                     .claim("email",user.getEmail())
                     .build();
