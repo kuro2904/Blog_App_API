@@ -34,3 +34,4 @@ build/
 
 application.yaml
 google_credential.json
+google-service-account.json
