@@ -2,7 +2,8 @@ package vn.ltdt.SocialNetwork.dtos.blog;
 
 import vn.ltdt.SocialNetwork.dtos.ReactionDTO;
 import vn.ltdt.SocialNetwork.models.Blog;
-import vn.ltdt.SocialNetwork.models.image.AppImage;
+import vn.ltdt.SocialNetwork.models.BlogVisibilityScope;
+import vn.ltdt.SocialNetwork.models.image.BlogImage;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -13,6 +14,7 @@ public record BlogResponse(
         String content,
         String author,
         LocalDateTime createAt,
+        BlogVisibilityScope visibility,
         List<String> images,
         List<ReactionDTO> reactions
 ) {
@@ -23,7 +25,8 @@ public record BlogResponse(
         blog.getContent(),
         blog.getAuthor().getFirstName(),
         blog.getCreatedAt(),
-        blog.getImages().stream().map(AppImage::getUrl).toList(),
+        blog.getVisibilityScope(),
+        blog.getImages().stream().map(BlogImage::getUrl).toList(),
         blog.getReactions().stream().map(ReactionDTO::new).toList()
        );
     }

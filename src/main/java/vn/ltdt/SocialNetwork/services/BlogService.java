@@ -8,11 +8,16 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import vn.ltdt.SocialNetwork.dtos.blog.BlogRequest;
+import org.springframework.web.multipart.MultipartFile;
 import vn.ltdt.SocialNetwork.dtos.blog.BlogResponse;
 import vn.ltdt.SocialNetwork.models.Blog;
+import vn.ltdt.SocialNetwork.models.BlogVisibilityScope;
 import vn.ltdt.SocialNetwork.models.User;
+import vn.ltdt.SocialNetwork.models.image.BlogImage;
 import vn.ltdt.SocialNetwork.repositories.BlogRepository;
+import vn.ltdt.SocialNetwork.repositories.images.BlogImageRepository;
+
+import java.util.List;
 
 @Service
 @Slf4j
@@ -21,6 +26,8 @@ import vn.ltdt.SocialNetwork.repositories.BlogRepository;
 public class BlogService {
 
     private final BlogRepository blogRepository;
+    private final BlogImageRepository blogImageRepository;
+    private final GoogleDriveService googleDriveService;
 
     public Page<BlogResponse> fetch(int pageNum, int pageSize, String sortField, String sortDirection, String searchText) {
         Sort.Direction sortDirectionEnum = Sort.Direction.fromString(sortDirection);
@@ -35,15 +42,27 @@ public class BlogService {
         return result;
     }
 
-    public void save(User author, BlogRequest request) {
-        if(request.images() != null && !request.images().isEmpty()){
-            log.info("Saving blog images");
+    public void save(User author, String content, String visibilityScopeStr, List<MultipartFile> images) {
+        BlogVisibilityScope visibilityScope;
+        try {
+            visibilityScope = BlogVisibilityScope.valueOf(visibilityScopeStr);
+        } catch (IllegalArgumentException ex) {
+            throw new IllegalArgumentException("Invalid visibility scope: " + visibilityScopeStr);
         }
-        blogRepository.save(
+        Blog blog = blogRepository.save(
                 Blog.builder()
                         .author(author)
-                        .content(request.content())
+                        .content(content)
+                        .visibilityScope(visibilityScope)
                         .build()
         );
+        List<BlogImage> blogImages = blogImageRepository.saveAll(googleDriveService.uploadMultipleFiles(images).stream().map(link -> {
+            BlogImage blogImage = new BlogImage();
+            blogImage.setUrl(link);
+            blogImage.setBlog(blog);
+            return blogImage;
+        }).toList());
+        blog.setImages(blogImages);
+        blogRepository.save(blog);
     }
 }
