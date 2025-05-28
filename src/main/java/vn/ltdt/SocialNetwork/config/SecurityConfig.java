@@ -26,6 +26,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import javax.crypto.spec.SecretKeySpec;
 import java.util.List;
 
+import static vn.ltdt.SocialNetwork.config.Constants.*;
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -34,11 +36,6 @@ public class SecurityConfig {
 
     @Value("${app.secretKey}")
     private String SECRET_KEY;
-    private final String ROLE_PREFIX = "ROLE_";
-    private final List<String> ALLOWED_CORS_ORIGINS = List.of("http://localhost:3000","http://localhost:5173");
-    private final List<String> ALLOWED_CORS_METHOD = List.of("GET", "POST", "PUT", "DELETE", "OPTIONS");
-    private final String[] PUBLIC_GET_ROUTE = {};
-    private final String[] PUBLIC_POST_ROUTE = {"/auth/**"};
     private final CustomJwtAuthenticationConverter customJwtAuthenticationConverter;
 
     @Bean
