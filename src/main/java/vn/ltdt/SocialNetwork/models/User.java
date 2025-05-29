@@ -40,6 +40,7 @@ public class User implements UserDetails, Serializable {
     private String password;
     private String firstName;
     private String lastName;
+    private String fullName;
     @Column(unique = true, nullable = false)
     private String phoneNumber;
     @OneToOne(mappedBy = "user")
@@ -70,4 +71,5 @@ public class User implements UserDetails, Serializable {
     public String getUsername() {
         return email;
     }
+
 }
