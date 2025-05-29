@@ -1,6 +1,7 @@
 package vn.ltdt.SocialNetwork.config;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
@@ -18,6 +19,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Component
+@Slf4j
 @RequiredArgsConstructor
 public class CustomJwtAuthenticationConverter implements Converter<Jwt, AbstractAuthenticationToken> {
 
@@ -28,9 +30,8 @@ public class CustomJwtAuthenticationConverter implements Converter<Jwt, Abstract
         String userId = source.getClaimAsString("sub");
         User user = userRepository.findById(UUID.fromString(userId))
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-
         Collection<? extends GrantedAuthority> authorities = source.getClaimAsStringList("roles").stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
-
+        log.info("User {} has roles {}", userId, authorities);
         return new UsernamePasswordAuthenticationToken(user, source, authorities);
     }
 }
