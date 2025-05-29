@@ -35,6 +35,7 @@ public class Blog {
     private LocalDateTime createdAt;
     @LastModifiedDate
     private LocalDateTime updatedAt;
+    @Enumerated(EnumType.STRING)
     private BlogVisibilityScope visibilityScope;
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "blog")
     private List<BlogImage> images = new ArrayList<>();

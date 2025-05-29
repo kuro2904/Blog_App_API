@@ -25,6 +25,7 @@ import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 
 @Service
@@ -56,7 +57,7 @@ public class GoogleDriveService {
     private String uploadFile(MultipartFile file) {
         try {
             File fileMetadata = new File();
-            fileMetadata.setName(file.getOriginalFilename());
+            fileMetadata.setName(UUID.randomUUID().toString());
             fileMetadata.setParents(Collections.singletonList(folderId));
 
             InputStreamContent mediaContent = new InputStreamContent(
