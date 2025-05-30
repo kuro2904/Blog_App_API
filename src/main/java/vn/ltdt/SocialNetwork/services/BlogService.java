@@ -41,7 +41,7 @@ public class BlogService {
         );
     }
 
-    public void save(User author, String content, String visibilityScopeStr, List<MultipartFile> images) {
+    public void save(User author, String content, String visibilityScopeStr, Optional<List<MultipartFile>> images) {
         BlogVisibilityScope visibilityScope;
         try {
             visibilityScope = BlogVisibilityScope.valueOf(visibilityScopeStr);
@@ -56,16 +56,17 @@ public class BlogService {
                         .build()
         );
 
-        List<BlogImage> imgUrl = images.stream().map(awsService::upload).map(link -> {
-                    BlogImage blogImage = new BlogImage();
-                    blogImage.setUrl(link);
-                    blogImage.setBlog(blog);
-                    return blogImage;
-                }
+        if(images.isPresent()){
+            List<BlogImage> imgUrl = images.get().stream().map(awsService::upload).map(link -> {
+                        BlogImage blogImage = new BlogImage();
+                        blogImage.setUrl(link);
+                        blogImage.setBlog(blog);
+                        return blogImage;
+                    }
             ).toList();
-
-        List<BlogImage> blogImages = blogImageRepository.saveAll(imgUrl);
-        blog.setImages(blogImages);
+            List<BlogImage> blogImages = blogImageRepository.saveAll(imgUrl);
+            blog.setImages(blogImages);
+        }
         blogRepository.save(blog);
     }
 
@@ -73,10 +74,10 @@ public class BlogService {
         User author = userRepository.findByEmail(userEmail).orElseThrow(
                 () -> new ContentNotFoundException("User","Email", userEmail)
         );
-        Sort.Direction sortDirectionEnum = Sort.Direction.DESC;
+        Sort.Direction sortDirectionEnum = Sort.Direction.ASC;
         Pageable pageable = PageRequest.of(pageNum, pageSize, sortDirectionEnum, "createdAt");
         Page<Blog> blogs;
-        if(requestUser == author) {
+        if(requestUser.getId().equals(author.getId())) {
             blogs = blogRepository.findByAuthor(author,pageable);
         }
         else {

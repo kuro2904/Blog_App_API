@@ -42,8 +42,8 @@ public class BlogController {
             @AuthenticationPrincipal User user,
             @RequestPart("visibilityScope") String visibilityScope,
             @RequestPart String content,
-            @RequestPart List<MultipartFile> images ) {
-        blogService.save(user,content,visibilityScope,images);
+            @RequestPart(required = false) List<MultipartFile> images ) {
+        blogService.save(user,content,visibilityScope,Optional.ofNullable(images));
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
