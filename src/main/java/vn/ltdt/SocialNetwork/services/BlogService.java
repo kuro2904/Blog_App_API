@@ -30,7 +30,7 @@ public class BlogService {
 
     private final BlogRepository blogRepository;
     private final BlogImageRepository blogImageRepository;
-    private final GoogleDriveService googleDriveService;
+    private final AWSService awsService;
     private final UserRepository userRepository;
 
     public Page<BlogResponse> findBlogs(int pageNum, int pageSize, String sortField, String sortDirection, Optional<String> searchText) {
@@ -55,12 +55,15 @@ public class BlogService {
                         .visibilityScope(visibilityScope)
                         .build()
         );
-        List<BlogImage> imgUrl = googleDriveService.uploadMultipleFiles(images).stream().map(link -> {
-            BlogImage blogImage = new BlogImage();
-            blogImage.setUrl(link);
-            blogImage.setBlog(blog);
-            return blogImage;
-        }).toList();
+
+        List<BlogImage> imgUrl = images.stream().map(awsService::upload).map(link -> {
+                    BlogImage blogImage = new BlogImage();
+                    blogImage.setUrl(link);
+                    blogImage.setBlog(blog);
+                    return blogImage;
+                }
+            ).toList();
+
         List<BlogImage> blogImages = blogImageRepository.saveAll(imgUrl);
         blog.setImages(blogImages);
         blogRepository.save(blog);
