@@ -36,7 +36,6 @@ public class SecurityConfig {
 
     @Value("${app.secretKey}")
     private String SECRET_KEY;
-    private final CustomJwtAuthenticationConverter customJwtAuthenticationConverter;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -83,7 +82,6 @@ public class SecurityConfig {
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwt ->
                                 jwt
-                                    .jwtAuthenticationConverter(customJwtAuthenticationConverter)
                                     .decoder(jwtDecoder())))
                 .build();
     }

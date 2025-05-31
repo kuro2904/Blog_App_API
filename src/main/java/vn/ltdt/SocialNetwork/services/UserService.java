@@ -10,6 +10,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import vn.ltdt.SocialNetwork.dtos.auth.RegisterRequest;
 import vn.ltdt.SocialNetwork.dtos.user.UserDTO;
 import vn.ltdt.SocialNetwork.dtos.user.UserListDTO;
@@ -17,6 +18,7 @@ import vn.ltdt.SocialNetwork.exceptions.AlreadyExistedException;
 import vn.ltdt.SocialNetwork.exceptions.ContentNotFoundException;
 import vn.ltdt.SocialNetwork.models.User;
 import vn.ltdt.SocialNetwork.repositories.UserRepository;
+import vn.ltdt.SocialNetwork.repositories.images.UserImageRepository;
 
 import java.util.Optional;
 
@@ -27,6 +29,8 @@ public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final UserImageRepository userImageRepository;
+    private final AWSService awsService;
 
 
     @Override
@@ -75,4 +79,12 @@ public class UserService implements UserDetailsService {
         return userRepository.findByEmail(email).map(UserDTO::new).orElseThrow(()-> new ContentNotFoundException("User", "Email",email));
     }
 
+    public UserDTO updateUserInfo(String email, UserDTO userDTO) {
+
+        return null;
+    }
+
+    public UserDTO updateUserAvatar(String email, MultipartFile file) {
+        return null;
+    }
 }

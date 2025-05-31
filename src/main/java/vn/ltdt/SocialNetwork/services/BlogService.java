@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,6 +22,7 @@ import vn.ltdt.SocialNetwork.repositories.images.BlogImageRepository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -41,8 +43,11 @@ public class BlogService {
         );
     }
 
-    public void save(User author, String content, String visibilityScopeStr, Optional<List<MultipartFile>> images) {
+    public void save(Jwt jwt, String content, String visibilityScopeStr, Optional<List<MultipartFile>> images) {
         BlogVisibilityScope visibilityScope;
+        User author = userRepository.findById(UUID.fromString(jwt.getSubject())).orElseThrow(
+                () -> new ContentNotFoundException("User","Id", jwt.getId())
+        );
         try {
             visibilityScope = BlogVisibilityScope.valueOf(visibilityScopeStr);
         } catch (IllegalArgumentException ex) {
@@ -70,14 +75,14 @@ public class BlogService {
         blogRepository.save(blog);
     }
 
-    public Page<BlogResponse> findBlogByUserEmail(User requestUser, String userEmail, int pageNum, int pageSize) {
+    public Page<BlogResponse> findBlogByUserEmail(Jwt requestUser, String userEmail, int pageNum, int pageSize) {
         User author = userRepository.findByEmail(userEmail).orElseThrow(
                 () -> new ContentNotFoundException("User","Email", userEmail)
         );
         Sort.Direction sortDirectionEnum = Sort.Direction.ASC;
         Pageable pageable = PageRequest.of(pageNum, pageSize, sortDirectionEnum, "createdAt");
         Page<Blog> blogs;
-        if(requestUser.getId().equals(author.getId())) {
+        if(requestUser.getSubject().equals(author.getId().toString())) {
             blogs = blogRepository.findByAuthor(author,pageable);
         }
         else {

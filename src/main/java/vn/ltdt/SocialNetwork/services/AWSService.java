@@ -24,18 +24,17 @@ public class AWSService {
 
     public String upload(MultipartFile file)  {
         try {
-            String key = UUID.randomUUID() + "_" + file.getOriginalFilename();
+            String key = String.format("%s_%s",UUID.randomUUID(),file.getOriginalFilename());
 
             PutObjectRequest request = PutObjectRequest.builder()
                     .bucket(bucketName)
                     .key(key)
-//                    .acl(ObjectCannedACL.PUBLIC_READ)
                     .contentType(file.getContentType())
                     .build();
 
             s3Client.putObject(request, RequestBody.fromBytes(file.getBytes()));
 
-            return "https://" + bucketName + ".s3.amazonaws.com/" + key;
+            return String.format("https://%s.s3.amazonaws.com/%s",bucketName,key);
         }catch (IOException e) {
             log.error("Upload failed",e);
             return null;
