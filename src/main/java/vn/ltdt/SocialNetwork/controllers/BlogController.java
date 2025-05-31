@@ -11,7 +11,6 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import vn.ltdt.SocialNetwork.dtos.blog.BlogResponse;
-import vn.ltdt.SocialNetwork.models.User;
 import vn.ltdt.SocialNetwork.services.BlogService;
 
 import java.util.List;
